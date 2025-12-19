@@ -3,146 +3,561 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escaner de Texto con Cámara</title>
-    <!-- Importar Tesseract.js desde CDN -->
+    <title>Escaner Inteligente: Texto y Objetos</title>
+    <!-- Importar bibliotecas necesarias desde CDN -->
     <script src='https://cdn.jsdelivr.net/npm/tesseract.js@v5/dist/tesseract.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f5f5f5; }
-        #cameraView { width: 100%; max-width: 640px; background: #000; border-radius: 8px; margin: 15px auto; }
-        button { padding: 14px 28px; margin: 10px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer; background-color: #007bff; color: white; transition: background 0.3s; }
-        button:hover { background-color: #0056b3; }
-        button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        #resultado { margin-top: 25px; padding: 20px; border: 2px dashed #28a745; border-radius: 8px; background: white; text-align: left; white-space: pre-wrap; min-height: 100px; }
-        .status { margin: 10px; color: #666; font-style: italic; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.2rem;
+        }
+
+        .camera-section {
+            position: relative;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        #cameraView {
+            width: 100%;
+            height: auto;
+            max-height: 500px;
+            background: #000;
+            border-radius: 10px;
+            display: block;
+            object-fit: cover;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        button {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 200px;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(102, 126, 234, 0.4);
+        }
+
+        .secondary-btn {
+            background-color: #48bb78;
+            color: white;
+        }
+
+        .secondary-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(72, 187, 120, 0.4);
+        }
+
+        .danger-btn {
+            background-color: #f56565;
+            color: white;
+        }
+
+        .danger-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(245, 101, 101, 0.4);
+        }
+
+        .switch-btn {
+            background-color: #ed8936;
+            color: white;
+        }
+
+        .switch-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(237, 137, 54, 0.4);
+        }
+
+        button:disabled {
+            background-color: #cbd5e0;
+            color: #a0aec0;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .results-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .results-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .result-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            border-top: 5px solid;
+        }
+
+        .text-card {
+            border-top-color: #667eea;
+        }
+
+        .objects-card {
+            border-top-color: #48bb78;
+        }
+
+        .result-card h3 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-card h3 i {
+            font-size: 1.8rem;
+        }
+
+        .result-content {
+            min-height: 200px;
+            padding: 20px;
+            background-color: #f7fafc;
+            border-radius: 10px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        #textResult {
+            white-space: pre-wrap;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        #objectsResult {
+            font-size: 1.1rem;
+        }
+
+        .object-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: white;
+            border-radius: 8px;
+            border-left: 5px solid #48bb78;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .object-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .object-confidence {
+            color: #718096;
+            font-size: 0.9rem;
+            background-color: #e6fffa;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .status-area {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #edf2f7;
+            border-radius: 10px;
+            text-align: center;
+            font-style: italic;
+            color: #4a5568;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .instructions {
+            background-color: #fffaf0;
+            border-left: 5px solid #ed8936;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .instructions h4 {
+            color: #dd6b20;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            color: #744210;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .icon {
+            font-size: 1.2rem;
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <h1>📷 Escáner de Texto OCR (Español)</h1>
-    <p>Activa la cámara, enfoca un texto y captúralo. El texto se extraerá directamente en tu navegador.</p>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-camera"></i> Escáner Inteligente</h1>
+            <p class="subtitle">Reconoce texto en español y detecta objetos con tu cámara</p>
+        </header>
 
-    <!-- Contenedor para la vista de la cámara -->
-    <video id="cameraView" playsinline autoplay></video>
-    <br>
+        <div class="camera-section">
+            <video id="cameraView" playsinline autoplay></video>
+        </div>
 
-    <!-- Botones de control -->
-    <button id="btnActivar">Activar Cámara</button>
-    <button id="btnCapturar" disabled>Capturar y Leer Texto</button>
-    <button id="btnParar" disabled>Parar Cámara</button>
-    <button id="btnCambiarCamara" disabled>Cambiar Cámara</button>
+        <div class="controls">
+            <button id="btnActivar" class="primary-btn">
+                <i class="fas fa-video"></i> Activar Cámara
+            </button>
+            <button id="btnCapturarTexto" class="secondary-btn" disabled>
+                <i class="fas fa-text-height"></i> Leer Texto
+            </button>
+            <button id="btnDetectarObjetos" class="secondary-btn" disabled>
+                <i class="fas fa-object-group"></i> Detectar Objetos
+            </button>
+            <button id="btnCambiarCamara" class="switch-btn" disabled>
+                <i class="fas fa-sync-alt"></i> Cambiar Cámara
+            </button>
+            <button id="btnParar" class="danger-btn" disabled>
+                <i class="fas fa-stop"></i> Parar Cámara
+            </button>
+        </div>
 
-    <!-- Mensajes de estado del OCR -->
-    <div id="statusOCR" class="status"></div>
+        <div class="status-area" id="statusDiv">
+            Presiona "Activar Cámara" para comenzar
+        </div>
 
-    <!-- Donde se mostrará el texto extraído -->
-    <h3>Texto Reconocido:</h3>
-    <div id="resultado">Aquí aparecerá el texto extraído...</div>
+        <div class="results-section">
+            <div class="result-card text-card">
+                <h3><i class="fas fa-font"></i> Texto Reconocido</h3>
+                <div class="result-content">
+                    <div id="textResult">El texto extraído aparecerá aquí...</div>
+                </div>
+            </div>
+
+            <div class="result-card objects-card">
+                <h3><i class="fas fa-cube"></i> Objetos Detectados</h3>
+                <div class="result-content">
+                    <div id="objectsResult">Los objetos detectados aparecerán aquí...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h4><i class="fas fa-lightbulb"></i> Consejos para mejores resultados:</h4>
+            <ul>
+                <li>Asegura buena iluminación sobre el texto u objetos</li>
+                <li>Mantén el dispositivo estable al capturar</li>
+                <li>Para texto: acerca la cámara y enfoca claramente</li>
+                <li>Primera ejecución: los modelos de IA pueden tardar en cargar</li>
+                <li>Usa la cámara trasera para mayor calidad</li>
+            </ul>
+        </div>
+    </div>
 
     <script>
         // Elementos del DOM
         const video = document.getElementById('cameraView');
         const btnActivar = document.getElementById('btnActivar');
-        const btnCapturar = document.getElementById('btnCapturar');
-        const btnParar = document.getElementById('btnParar');
+        const btnCapturarTexto = document.getElementById('btnCapturarTexto');
+        const btnDetectarObjetos = document.getElementById('btnDetectarObjetos');
         const btnCambiarCamara = document.getElementById('btnCambiarCamara');
-        const resultadoDiv = document.getElementById('resultado');
-        const statusDiv = document.getElementById('statusOCR');
+        const btnParar = document.getElementById('btnParar');
+        const textResult = document.getElementById('textResult');
+        const objectsResult = document.getElementById('objectsResult');
+        const statusDiv = document.getElementById('statusDiv');
 
+        // Variables de estado
         let stream = null;
-        let currentFacingMode = 'environment'; // Cámara trasera por defecto
+        let currentFacingMode = 'environment'; // 'environment' = trasera, 'user' = frontal
+        let cocoModel = null;
+        let isModelLoading = false;
 
-        // 1. Función para activar la cámara
+        // 1. Activar la cámara
         async function activarCamara(facingMode) {
             try {
-                // Detener el stream anterior si existe
+                // Detener stream anterior si existe
                 if (stream) {
                     stream.getTracks().forEach(track => track.stop());
                 }
+                
+                statusDiv.innerHTML = `<i class="fas fa-cog loading"></i> Activando cámara...`;
+                
                 // Solicitar acceso a la cámara
                 stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+                    video: { 
+                        facingMode: facingMode,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
                     audio: false
                 });
+                
                 video.srcObject = stream;
+                
+                // Actualizar estado de botones
                 btnActivar.disabled = true;
-                btnCapturar.disabled = false;
-                btnParar.disabled = false;
+                btnCapturarTexto.disabled = false;
+                btnDetectarObjetos.disabled = false;
                 btnCambiarCamara.disabled = false;
-                resultadoDiv.textContent = 'Cámara activada. Enfoca el texto y haz clic en "Capturar y Leer Texto".';
-                statusDiv.textContent = '';
+                btnParar.disabled = false;
+                
+                statusDiv.innerHTML = `<i class="fas fa-check-circle" style="color:#48bb78"></i> Cámara activada. Enfoca el texto u objeto y selecciona una opción.`;
+                textResult.textContent = 'El texto extraído aparecerá aquí...';
+                objectsResult.textContent = 'Los objetos detectados aparecerán aquí...';
+                
             } catch (err) {
-                resultadoDiv.textContent = 'Error al acceder a la cámara: ' + err.message;
-                console.error(err);
+                statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#f56565"></i> Error al acceder a la cámara: ${err.message}`;
+                console.error("Error al acceder a la cámara:", err);
             }
         }
 
-        // 2. Activar cámara trasera al inicio
+        // 2. Evento para activar cámara
         btnActivar.addEventListener('click', () => activarCamara(currentFacingMode));
 
-        // 3. Alternar entre cámara frontal y trasera
+        // 3. Cambiar entre cámara frontal y trasera
         btnCambiarCamara.addEventListener('click', () => {
             currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+            const cameraType = currentFacingMode === 'environment' ? 'trasera' : 'frontal';
+            statusDiv.innerHTML = `<i class="fas fa-sync-alt loading"></i> Cambiando a cámara ${cameraType}...`;
             activarCamara(currentFacingMode);
-            resultadoDiv.textContent = `Cambiando a cámara ${currentFacingMode === 'environment' ? 'trasera' : 'frontal'}...`;
         });
 
-        // 4. Capturar foto y realizar OCR
-        btnCapturar.addEventListener('click', async () => {
+        // 4. Capturar y reconocer texto
+        btnCapturarTexto.addEventListener('click', async () => {
             if (!stream) return;
-
-            // Crear un canvas para capturar el fotograma del video
+            
+            // Crear canvas para capturar el fotograma
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Mostrar mensaje de progreso
-            statusDiv.textContent = '🔄 Procesando imagen con OCR (esto puede tardar unos segundos)...';
-            statusDiv.style.color = '#007bff';
-            resultadoDiv.textContent = '';
-
+            
+            // Mostrar estado de procesamiento
+            statusDiv.innerHTML = `<i class="fas fa-cog loading"></i> Procesando texto...`;
+            textResult.textContent = 'Procesando imagen...';
+            
             try {
-                // Realizar el reconocimiento de texto con Tesseract.js
-                // Se especifica el idioma español ('spa') y un nivel de configuración simple[citation:1]
+                // Mejorar contraste de la imagen para mejor OCR
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Convertir a escala de grises y aumentar contraste
+                for (let i = 0; i < data.length; i += 4) {
+                    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                    const contrast = 1.5;
+                    const pixel = ((avg / 255 - 0.5) * contrast + 0.5) * 255;
+                    data[i] = data[i + 1] = data[i + 2] = pixel;
+                }
+                ctx.putImageData(imageData, 0, 0);
+                
+                // Realizar OCR con Tesseract.js
                 const { data: { text } } = await Tesseract.recognize(
-                    canvas, // fuente de la imagen
-                    'spa',  // código de idioma para español[citation:1]
+                    canvas,
+                    'spa', // Idioma español
                     {
                         logger: m => {
-                            // Mostrar progreso detallado
                             if (m.status === 'recognizing text') {
-                                statusDiv.textContent = `📈 Progreso: ${Math.round(m.progress * 100)}%`;
+                                statusDiv.innerHTML = `<i class="fas fa-cog loading"></i> Reconociendo texto: ${Math.round(m.progress * 100)}%`;
                             }
-                        }
+                        },
+                        oem: 3, // Motor LSTM (mejor precisión)
+                        psm: 7  // Tratar imagen como una sola línea de texto
                     }
                 );
-
-                // Mostrar el resultado
-                resultadoDiv.textContent = text || 'No se pudo detectar texto en la imagen.';
-                statusDiv.textContent = '✅ ¡Texto extraído con éxito!';
-                statusDiv.style.color = '#28a745';
-
+                
+                // Mostrar resultado
+                textResult.textContent = text || 'No se pudo detectar texto en la imagen.';
+                
+                if (text) {
+                    statusDiv.innerHTML = `<i class="fas fa-check-circle" style="color:#48bb78"></i> Texto reconocido correctamente`;
+                } else {
+                    statusDiv.innerHTML = `<i class="fas fa-info-circle" style="color:#ed8936"></i> No se encontró texto en la imagen`;
+                }
+                
             } catch (error) {
-                // Manejo de errores
-                statusDiv.textContent = '❌ Error en el proceso OCR.';
-                statusDiv.style.color = '#dc3545';
-                resultadoDiv.textContent = 'Error: ' + error.message;
-                console.error('OCR Error:', error);
+                textResult.textContent = 'Error durante el reconocimiento de texto.';
+                statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#f56565"></i> Error en OCR: ${error.message}`;
+                console.error("Error en OCR:", error);
             }
         });
 
-        // 5. Parar la cámara
+        // 5. Detectar objetos en la imagen
+        btnDetectarObjetos.addEventListener('click', async () => {
+            if (!stream) return;
+            
+            // Crear canvas para capturar el fotograma
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Mostrar estado de procesamiento
+            statusDiv.innerHTML = `<i class="fas fa-cog loading"></i> Cargando modelo de detección...`;
+            objectsResult.textContent = 'Cargando modelo...';
+            
+            try {
+                // Cargar modelo COCO-SSD si no está cargado
+                if (!cocoModel && !isModelLoading) {
+                    isModelLoading = true;
+                    cocoModel = await cocoSsd.load();
+                    isModelLoading = false;
+                } else if (isModelLoading) {
+                    objectsResult.textContent = 'Modelo aún cargando, por favor espera...';
+                    return;
+                }
+                
+                statusDiv.innerHTML = `<i class="fas fa-cog loading"></i> Detectando objetos...`;
+                objectsResult.textContent = 'Analizando imagen...';
+                
+                // Realizar detección de objetos
+                const predictions = await cocoModel.detect(canvas);
+                
+                // Mostrar resultados
+                if (predictions.length > 0) {
+                    let resultHTML = '';
+                    predictions.forEach(prediction => {
+                        const confidencePercent = Math.round(prediction.score * 100);
+                        resultHTML += `
+                            <div class="object-item">
+                                <span class="object-name">${prediction.class}</span>
+                                <span class="object-confidence">${confidencePercent}% confianza</span>
+                            </div>
+                        `;
+                    });
+                    objectsResult.innerHTML = resultHTML;
+                    statusDiv.innerHTML = `<i class="fas fa-check-circle" style="color:#48bb78"></i> ${predictions.length} objeto(s) detectado(s)`;
+                } else {
+                    objectsResult.textContent = 'No se detectaron objetos en la imagen.';
+                    statusDiv.innerHTML = `<i class="fas fa-info-circle" style="color:#ed8936"></i> No se detectaron objetos`;
+                }
+                
+            } catch (error) {
+                objectsResult.textContent = 'Error durante la detección de objetos.';
+                statusDiv.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#f56565"></i> Error en detección: ${error.message}`;
+                console.error("Error en detección de objetos:", error);
+            }
+        });
+
+        // 6. Parar la cámara
         btnParar.addEventListener('click', () => {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 video.srcObject = null;
                 stream = null;
+                
+                // Actualizar estado de botones
                 btnActivar.disabled = false;
-                btnCapturar.disabled = true;
-                btnParar.disabled = true;
+                btnCapturarTexto.disabled = true;
+                btnDetectarObjetos.disabled = true;
                 btnCambiarCamara.disabled = true;
-                resultadoDiv.textContent = 'Cámara detenida.';
-                statusDiv.textContent = '';
+                btnParar.disabled = true;
+                
+                statusDiv.innerHTML = `<i class="fas fa-info-circle" style="color:#4a5568"></i> Cámara detenida. Presiona "Activar Cámara" para comenzar de nuevo.`;
+            }
+        });
+
+        // 7. Cargar modelo COCO-SSD en segundo plano cuando se active la cámara
+        btnActivar.addEventListener('click', async () => {
+            // Cargar modelo en segundo plano para que esté listo cuando se necesite
+            if (!cocoModel && !isModelLoading) {
+                isModelLoading = true;
+                setTimeout(async () => {
+                    try {
+                        cocoModel = await cocoSsd.load();
+                        console.log("Modelo COCO-SSD cargado exitosamente");
+                    } catch (error) {
+                        console.error("Error cargando modelo COCO-SSD:", error);
+                    } finally {
+                        isModelLoading = false;
+                    }
+                }, 1000);
             }
         });
     </script>
