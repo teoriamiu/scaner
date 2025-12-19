@@ -3,89 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escáner de Texto IA - Debug</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <title>Escaner de Texto con Cámara</title>
+    <!-- Importar Tesseract.js desde CDN -->
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@v5/dist/tesseract.min.js'></script>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
-        #video-container { width: 100%; max-width: 400px; margin: auto; border: 3px solid #333; border-radius: 10px; overflow: hidden; background: #000; }
-        video { width: 100%; display: block; }
-        .controls { margin: 20px; }
-        button { padding: 15px 25px; font-size: 16px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; }
-        #start-btn { background: #28a745; color: white; }
-        #scan-btn { background: #007bff; color: white; display: none; }
-        #status { color: #d9534f; font-weight: bold; margin: 10px; }
-        #output { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 20px; min-height: 50px; text-align: left; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f5f5f5; }
+        #cameraView { width: 100%; max-width: 640px; background: #000; border-radius: 8px; margin: 15px auto; }
+        button { padding: 14px 28px; margin: 10px; font-size: 16px; border: none; border-radius: 6px; cursor: pointer; background-color: #007bff; color: white; transition: background 0.3s; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #resultado { margin-top: 25px; padding: 20px; border: 2px dashed #28a745; border-radius: 8px; background: white; text-align: left; white-space: pre-wrap; min-height: 100px; }
+        .status { margin: 10px; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
+    <h1>📷 Escáner de Texto OCR (Español)</h1>
+    <p>Activa la cámara, enfoca un texto y captúralo. El texto se extraerá directamente en tu navegador.</p>
 
-    <h2>Escáner de Texto</h2>
-    
-    <div id="video-container">
-        <video id="video" autoplay playsinline></video>
-    </div>
+    <!-- Contenedor para la vista de la cámara -->
+    <video id="cameraView" playsinline autoplay></video>
+    <br>
 
-    <div id="status">Haz clic en el botón verde para iniciar</div>
+    <!-- Botones de control -->
+    <button id="btnActivar">Activar Cámara</button>
+    <button id="btnCapturar" disabled>Capturar y Leer Texto</button>
+    <button id="btnParar" disabled>Parar Cámara</button>
+    <button id="btnCambiarCamara" disabled>Cambiar Cámara</button>
 
-    <div class="controls">
-        <button id="start-btn">1. Activar Cámara</button>
-        <button id="scan-btn">2. Escanear Texto</button>
-    </div>
+    <!-- Mensajes de estado del OCR -->
+    <div id="statusOCR" class="status"></div>
 
-    <div id="output">El texto aparecerá aquí...</div>
-    <canvas id="canvas" style="display:none;"></canvas>
+    <!-- Donde se mostrará el texto extraído -->
+    <h3>Texto Reconocido:</h3>
+    <div id="resultado">Aquí aparecerá el texto extraído...</div>
 
     <script>
-        const video = document.getElementById('video');
-        const startBtn = document.getElementById('start-btn');
-        const scanBtn = document.getElementById('scan-btn');
-        const status = document.getElementById('status');
-        const output = document.getElementById('output');
-        const canvas = document.getElementById('canvas');
+        // Elementos del DOM
+        const video = document.getElementById('cameraView');
+        const btnActivar = document.getElementById('btnActivar');
+        const btnCapturar = document.getElementById('btnCapturar');
+        const btnParar = document.getElementById('btnParar');
+        const btnCambiarCamara = document.getElementById('btnCambiarCamara');
+        const resultadoDiv = document.getElementById('resultado');
+        const statusDiv = document.getElementById('statusOCR');
 
-        // Función para iniciar cámara
-        startBtn.addEventListener('click', async () => {
-            status.innerText = "Solicitando permiso...";
+        let stream = null;
+        let currentFacingMode = 'environment'; // Cámara trasera por defecto
+
+        // 1. Función para activar la cámara
+        async function activarCamara(facingMode) {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment" } 
+                // Detener el stream anterior si existe
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                // Solicitar acceso a la cámara
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: false
                 });
                 video.srcObject = stream;
-                status.innerText = "Cámara activada correctamente.";
-                status.style.color = "green";
-                startBtn.style.display = 'none';
-                scanBtn.style.display = 'inline-block';
+                btnActivar.disabled = true;
+                btnCapturar.disabled = false;
+                btnParar.disabled = false;
+                btnCambiarCamara.disabled = false;
+                resultadoDiv.textContent = 'Cámara activada. Enfoca el texto y haz clic en "Capturar y Leer Texto".';
+                statusDiv.textContent = '';
             } catch (err) {
-                status.innerText = "ERROR: " + err.name + " - " + err.message;
-                alert("No se pudo acceder a la cámara. Asegúrate de usar HTTPS o Localhost.");
+                resultadoDiv.textContent = 'Error al acceder a la cámara: ' + err.message;
+                console.error(err);
+            }
+        }
+
+        // 2. Activar cámara trasera al inicio
+        btnActivar.addEventListener('click', () => activarCamara(currentFacingMode));
+
+        // 3. Alternar entre cámara frontal y trasera
+        btnCambiarCamara.addEventListener('click', () => {
+            currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+            activarCamara(currentFacingMode);
+            resultadoDiv.textContent = `Cambiando a cámara ${currentFacingMode === 'environment' ? 'trasera' : 'frontal'}...`;
+        });
+
+        // 4. Capturar foto y realizar OCR
+        btnCapturar.addEventListener('click', async () => {
+            if (!stream) return;
+
+            // Crear un canvas para capturar el fotograma del video
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Mostrar mensaje de progreso
+            statusDiv.textContent = '🔄 Procesando imagen con OCR (esto puede tardar unos segundos)...';
+            statusDiv.style.color = '#007bff';
+            resultadoDiv.textContent = '';
+
+            try {
+                // Realizar el reconocimiento de texto con Tesseract.js
+                // Se especifica el idioma español ('spa') y un nivel de configuración simple[citation:1]
+                const { data: { text } } = await Tesseract.recognize(
+                    canvas, // fuente de la imagen
+                    'spa',  // código de idioma para español[citation:1]
+                    {
+                        logger: m => {
+                            // Mostrar progreso detallado
+                            if (m.status === 'recognizing text') {
+                                statusDiv.textContent = `📈 Progreso: ${Math.round(m.progress * 100)}%`;
+                            }
+                        }
+                    }
+                );
+
+                // Mostrar el resultado
+                resultadoDiv.textContent = text || 'No se pudo detectar texto en la imagen.';
+                statusDiv.textContent = '✅ ¡Texto extraído con éxito!';
+                statusDiv.style.color = '#28a745';
+
+            } catch (error) {
+                // Manejo de errores
+                statusDiv.textContent = '❌ Error en el proceso OCR.';
+                statusDiv.style.color = '#dc3545';
+                resultadoDiv.textContent = 'Error: ' + error.message;
+                console.error('OCR Error:', error);
             }
         });
 
-        // Función para escanear
-        scanBtn.addEventListener('click', async () => {
-            status.innerText = "Analizando imagen... (esto tarda unos segundos)";
-            status.style.color = "blue";
-            scanBtn.disabled = true;
-
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            try {
-                const result = await Tesseract.recognize(canvas.toDataURL('image/png'), 'spa');
-                output.innerText = result.data.text;
-                status.innerText = "¡Escaneo finalizado!";
-                status.style.color = "green";
-
-                // Voz
-                const speech = new SpeechSynthesisUtterance(result.data.text);
-                speech.lang = 'es-ES';
-                window.speechSynthesis.speak(speech);
-            } catch (e) {
-                status.innerText = "Error en el OCR: " + e.message;
-            } finally {
-                scanBtn.disabled = false;
+        // 5. Parar la cámara
+        btnParar.addEventListener('click', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                stream = null;
+                btnActivar.disabled = false;
+                btnCapturar.disabled = true;
+                btnParar.disabled = true;
+                btnCambiarCamara.disabled = true;
+                resultadoDiv.textContent = 'Cámara detenida.';
+                statusDiv.textContent = '';
             }
         });
     </script>
