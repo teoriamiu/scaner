@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escáner Automático Cámara Trasera</title>
+<title>Escáner Automático Optimizado</title>
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
 video, canvas { display: block; margin: 10px 0; max-width: 100%; border: 1px solid #ccc; }
@@ -12,9 +12,9 @@ video, canvas { display: block; margin: 10px 0; max-width: 100%; border: 1px sol
 </head>
 <body>
 
-<h2>Escaneo Automático coCámara Trasera</h2>
-<video id="video" autoplay playsinline width="320" height="240"></video>
-<canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+<h2>Escaneo Automático con Cámara Trasera Optimizado</h2>
+<video id="video" autoplay playsinline width="640" height="480"></video>
+<canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
 <div id="results">
   <p id="imgResult">Descripción: </p>
@@ -30,8 +30,10 @@ const ctx = canvas.getContext('2d');
 const imgResult = document.getElementById('imgResult');
 const textResult = document.getElementById('textResult');
 
-// Acceso a la cámara trasera
-navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } } })
+let processing = false;
+
+// Acceso a cámara trasera
+navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" }, width: 640, height: 480 } })
   .then(stream => video.srcObject = stream)
   .catch(err => alert('Error al acceder a la cámara trasera: ' + err));
 
@@ -40,24 +42,28 @@ const classifier = ml5.imageClassifier('MobileNet', () => console.log('Modelo ca
 
 // Función de escaneo automático
 async function scanFrame() {
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  if (!processing) {
+    processing = true;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Clasificación de imagen
-  classifier.classify(canvas, (err, results) => {
-    if (!err) imgResult.innerText = 'Descripción: ' + results[0].label;
-  });
-
-  // Reconocimiento de texto en español
-  Tesseract.recognize(canvas, 'spa', { logger: m => console.log(m) })
-    .then(({ data: { text } }) => {
-      textResult.innerText = 'Texto detectado: ' + (text.trim() || '[No se detectó texto]');
+    // Clasificación de imagen
+    classifier.classify(canvas, (err, results) => {
+      if (!err) imgResult.innerText = 'Descripción: ' + results[0].label;
     });
 
-  // Ejecutar de nuevo en 2 segundos
-  setTimeout(scanFrame, 2000);
+    // OCR en español
+    Tesseract.recognize(canvas, 'spa', { logger: m => console.log(m) })
+      .then(({ data: { text } }) => {
+        textResult.innerText = 'Texto detectado: ' + (text.trim() || '[No se detectó texto]');
+        processing = false; // Listo para siguiente frame
+      })
+      .catch(err => { console.error(err); processing = false; });
+  }
+
+  requestAnimationFrame(scanFrame); // Loop continuo
 }
 
-// Esperar a que el video cargue
+// Iniciar cuando el video esté listo
 video.addEventListener('loadeddata', () => {
   scanFrame();
 });
