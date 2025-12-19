@@ -3,17 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escáner Automático Optimizado</title>
+<title>Escáner Automático ceguro</title>
 <style>
 body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
 video, canvas { display: block; margin: 10px 0; max-width: 100%; border: 1px solid #ccc; }
 #results { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 
-<h2>Escaneo Automático con Cámara Trasera Optimizado</h2>
-<video id="video" autoplay playsinline width="640" height="480"></video>
+<h2>Escáner Automático con Cámara</h2>
+<button id="startCamera">Activar Cámara</button>
+<video id="video" autoplay playsinline width="640" height="480" style="display:none;"></video>
 <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
 <div id="results">
@@ -24,6 +26,7 @@ video, canvas { display: block; margin: 10px 0; max-width: 100%; border: 1px sol
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ml5@latest/dist/ml5.min.js"></script>
 <script>
+const startBtn = document.getElementById('startCamera');
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -31,41 +34,45 @@ const imgResult = document.getElementById('imgResult');
 const textResult = document.getElementById('textResult');
 
 let processing = false;
-
-// Acceso a cámara trasera
-navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" }, width: 640, height: 480 } })
-  .then(stream => video.srcObject = stream)
-  .catch(err => alert('Error al acceder a la cámara trasera: ' + err));
+let classifier;
 
 // Cargar modelo MobileNet
-const classifier = ml5.imageClassifier('MobileNet', () => console.log('Modelo cargado'));
+ml5.imageClassifier('MobileNet')
+  .then(c => { classifier = c; console.log('Modelo MobileNet cargado'); });
 
 // Función de escaneo automático
 async function scanFrame() {
-  if (!processing) {
+  if (!processing && classifier) {
     processing = true;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // Clasificación de imagen
-    classifier.classify(canvas, (err, results) => {
-      if (!err) imgResult.innerText = 'Descripción: ' + results[0].label;
-    });
+    classifier.classify(canvas)
+      .then(results => imgResult.innerText = 'Descripción: ' + results[0].label)
+      .catch(err => console.error(err));
 
     // OCR en español
     Tesseract.recognize(canvas, 'spa', { logger: m => console.log(m) })
       .then(({ data: { text } }) => {
         textResult.innerText = 'Texto detectado: ' + (text.trim() || '[No se detectó texto]');
-        processing = false; // Listo para siguiente frame
+        processing = false;
       })
       .catch(err => { console.error(err); processing = false; });
   }
 
-  requestAnimationFrame(scanFrame); // Loop continuo
+  requestAnimationFrame(scanFrame);
 }
 
-// Iniciar cuando el video esté listo
-video.addEventListener('loadeddata', () => {
-  scanFrame();
+// Activar cámara al presionar el botón
+startBtn.addEventListener('click', () => {
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: 640, height: 480 } })
+    .then(stream => {
+      video.srcObject = stream;
+      video.style.display = 'block';
+      startBtn.style.display = 'none'; // Ocultar botón
+      video.addEventListener('loadeddata', scanFrame);
+    })
+    .catch(err => alert('Error al acceder a la cámara: ' + err));
 });
 </script>
 
