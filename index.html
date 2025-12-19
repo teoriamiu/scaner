@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escáner de Texto IA</title>
+    <title>Escáner de Texto IA - Debug</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f2f5; padding: 20px; }
-        h2 { color: #1a73e8; }
-        #video-container { position: relative; width: 100%; max-width: 500px; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        body { font-family: sans-serif; text-align: center; background: #f4f4f9; padding: 20px; }
+        #video-container { width: 100%; max-width: 400px; margin: auto; border: 3px solid #333; border-radius: 10px; overflow: hidden; background: #000; }
         video { width: 100%; display: block; }
-        .controls { margin-top: 20px; display: flex; gap: 10px; }
-        button { padding: 12px 24px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
-        #start-btn { background: #34a853; color: white; }
-        #scan-btn { background: #1a73e8; color: white; display: none; }
-        #status { margin-top: 15px; color: #555; font-style: italic; }
-        #result-container { margin-top: 20px; width: 100%; max-width: 500px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); min-height: 100px; }
-        #canvas { display: none; }
+        .controls { margin: 20px; }
+        button { padding: 15px 25px; font-size: 16px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; }
+        #start-btn { background: #28a745; color: white; }
+        #scan-btn { background: #007bff; color: white; display: none; }
+        #status { color: #d9534f; font-weight: bold; margin: 10px; }
+        #output { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 20px; min-height: 50px; text-align: left; }
     </style>
 </head>
 <body>
@@ -27,78 +25,65 @@
         <video id="video" autoplay playsinline></video>
     </div>
 
+    <div id="status">Haz clic en el botón verde para iniciar</div>
+
     <div class="controls">
-        <button id="start-btn">Activar Cámara</button>
-        <button id="scan-btn">Escanear y Leer</button>
+        <button id="start-btn">1. Activar Cámara</button>
+        <button id="scan-btn">2. Escanear Texto</button>
     </div>
 
-    <p id="status">Haz clic en "Activar Cámara" para empezar.</p>
-
-    <div id="result-container">
-        <strong>Texto detectado:</strong>
-        <p id="output">El texto aparecerá aquí...</p>
-    </div>
-
-    <canvas id="canvas"></canvas>
+    <div id="output">El texto aparecerá aquí...</div>
+    <canvas id="canvas" style="display:none;"></canvas>
 
     <script>
         const video = document.getElementById('video');
         const startBtn = document.getElementById('start-btn');
         const scanBtn = document.getElementById('scan-btn');
-        const output = document.getElementById('output');
         const status = document.getElementById('status');
+        const output = document.getElementById('output');
         const canvas = document.getElementById('canvas');
 
-        // 1. Activar la cámara
+        // Función para iniciar cámara
         startBtn.addEventListener('click', async () => {
+            status.innerText = "Solicitando permiso...";
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment" } // Usa la cámara trasera si está disponible
+                    video: { facingMode: "environment" } 
                 });
                 video.srcObject = stream;
+                status.innerText = "Cámara activada correctamente.";
+                status.style.color = "green";
                 startBtn.style.display = 'none';
                 scanBtn.style.display = 'inline-block';
-                status.innerText = "Cámara lista. Enfoca el texto y presiona Escanear.";
             } catch (err) {
-                console.error("Error al acceder a la cámara:", err);
-                status.innerText = "Error: No se pudo acceder a la cámara.";
+                status.innerText = "ERROR: " + err.name + " - " + err.message;
+                alert("No se pudo acceder a la cámara. Asegúrate de usar HTTPS o Localhost.");
             }
         });
 
-        // 2. Capturar frame y procesar OCR
+        // Función para escanear
         scanBtn.addEventListener('click', async () => {
-            status.innerText = "Procesando imagen... Por favor espera.";
+            status.innerText = "Analizando imagen... (esto tarda unos segundos)";
+            status.style.color = "blue";
             scanBtn.disabled = true;
 
-            // Dibujar el video en el canvas para capturar la imagen
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Ejecutar Tesseract.js
             try {
-                const result = await Tesseract.recognize(
-                    canvas.toDataURL('image/png'),
-                    'spa', // Idioma español
-                    { logger: m => console.log(m) } // Opcional: ver progreso en consola
-                );
+                const result = await Tesseract.recognize(canvas.toDataURL('image/png'), 'spa');
+                output.innerText = result.data.text;
+                status.innerText = "¡Escaneo finalizado!";
+                status.style.color = "green";
 
-                const text = result.data.text.trim();
-                output.innerText = text || "No se detectó texto claro.";
-                status.innerText = "Escaneo completado.";
-                
-                // Opcional: Describir en voz alta (Text to Speech)
-                if (text) {
-                    const synth = window.speechSynthesis;
-                    const utterance = new SpeechSynthesisUtterance("He leído lo siguiente: " + text);
-                    utterance.lang = 'es-ES';
-                    synth.speak(utterance);
-                }
-
-            } catch (error) {
-                console.error(error);
-                status.innerText = "Error al procesar la imagen.";
+                // Voz
+                const speech = new SpeechSynthesisUtterance(result.data.text);
+                speech.lang = 'es-ES';
+                window.speechSynthesis.speak(speech);
+            } catch (e) {
+                status.innerText = "Error en el OCR: " + e.message;
             } finally {
                 scanBtn.disabled = false;
             }
