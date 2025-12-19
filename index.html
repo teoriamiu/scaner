@@ -1,80 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Escáner Automático ceguro</title>
-<style>
-body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-video, canvas { display: block; margin: 10px 0; max-width: 100%; border: 1px solid #ccc; }
-#results { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escáner de Texto IA</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f2f5; padding: 20px; }
+        h2 { color: #1a73e8; }
+        #video-container { position: relative; width: 100%; max-width: 500px; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        video { width: 100%; display: block; }
+        .controls { margin-top: 20px; display: flex; gap: 10px; }
+        button { padding: 12px 24px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        #start-btn { background: #34a853; color: white; }
+        #scan-btn { background: #1a73e8; color: white; display: none; }
+        #status { margin-top: 15px; color: #555; font-style: italic; }
+        #result-container { margin-top: 20px; width: 100%; max-width: 500px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); min-height: 100px; }
+        #canvas { display: none; }
+    </style>
 </head>
 <body>
 
-<h2>Escáner Automático con Cámara</h2>
-<button id="startCamera">Activar Cámara</button>
-<video id="video" autoplay playsinline width="640" height="480" style="display:none;"></video>
-<canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <h2>Escáner de Texto</h2>
+    
+    <div id="video-container">
+        <video id="video" autoplay playsinline></video>
+    </div>
 
-<div id="results">
-  <p id="imgResult">Descripción: </p>
-  <p id="textResult">Texto detectado: </p>
-</div>
+    <div class="controls">
+        <button id="start-btn">Activar Cámara</button>
+        <button id="scan-btn">Escanear y Leer</button>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ml5@latest/dist/ml5.min.js"></script>
-<script>
-const startBtn = document.getElementById('startCamera');
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const imgResult = document.getElementById('imgResult');
-const textResult = document.getElementById('textResult');
+    <p id="status">Haz clic en "Activar Cámara" para empezar.</p>
 
-let processing = false;
-let classifier;
+    <div id="result-container">
+        <strong>Texto detectado:</strong>
+        <p id="output">El texto aparecerá aquí...</p>
+    </div>
 
-// Cargar modelo MobileNet
-ml5.imageClassifier('MobileNet')
-  .then(c => { classifier = c; console.log('Modelo MobileNet cargado'); });
+    <canvas id="canvas"></canvas>
 
-// Función de escaneo automático
-async function scanFrame() {
-  if (!processing && classifier) {
-    processing = true;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    <script>
+        const video = document.getElementById('video');
+        const startBtn = document.getElementById('start-btn');
+        const scanBtn = document.getElementById('scan-btn');
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+        const canvas = document.getElementById('canvas');
 
-    // Clasificación de imagen
-    classifier.classify(canvas)
-      .then(results => imgResult.innerText = 'Descripción: ' + results[0].label)
-      .catch(err => console.error(err));
+        // 1. Activar la cámara
+        startBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } // Usa la cámara trasera si está disponible
+                });
+                video.srcObject = stream;
+                startBtn.style.display = 'none';
+                scanBtn.style.display = 'inline-block';
+                status.innerText = "Cámara lista. Enfoca el texto y presiona Escanear.";
+            } catch (err) {
+                console.error("Error al acceder a la cámara:", err);
+                status.innerText = "Error: No se pudo acceder a la cámara.";
+            }
+        });
 
-    // OCR en español
-    Tesseract.recognize(canvas, 'spa', { logger: m => console.log(m) })
-      .then(({ data: { text } }) => {
-        textResult.innerText = 'Texto detectado: ' + (text.trim() || '[No se detectó texto]');
-        processing = false;
-      })
-      .catch(err => { console.error(err); processing = false; });
-  }
+        // 2. Capturar frame y procesar OCR
+        scanBtn.addEventListener('click', async () => {
+            status.innerText = "Procesando imagen... Por favor espera.";
+            scanBtn.disabled = true;
 
-  requestAnimationFrame(scanFrame);
-}
+            // Dibujar el video en el canvas para capturar la imagen
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-// Activar cámara al presionar el botón
-startBtn.addEventListener('click', () => {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: 640, height: 480 } })
-    .then(stream => {
-      video.srcObject = stream;
-      video.style.display = 'block';
-      startBtn.style.display = 'none'; // Ocultar botón
-      video.addEventListener('loadeddata', scanFrame);
-    })
-    .catch(err => alert('Error al acceder a la cámara: ' + err));
-});
-</script>
+            // Ejecutar Tesseract.js
+            try {
+                const result = await Tesseract.recognize(
+                    canvas.toDataURL('image/png'),
+                    'spa', // Idioma español
+                    { logger: m => console.log(m) } // Opcional: ver progreso en consola
+                );
 
+                const text = result.data.text.trim();
+                output.innerText = text || "No se detectó texto claro.";
+                status.innerText = "Escaneo completado.";
+                
+                // Opcional: Describir en voz alta (Text to Speech)
+                if (text) {
+                    const synth = window.speechSynthesis;
+                    const utterance = new SpeechSynthesisUtterance("He leído lo siguiente: " + text);
+                    utterance.lang = 'es-ES';
+                    synth.speak(utterance);
+                }
+
+            } catch (error) {
+                console.error(error);
+                status.innerText = "Error al procesar la imagen.";
+            } finally {
+                scanBtn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
