@@ -9,16 +9,56 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
 <style>
+/* =====================================
+   1. RESET BASE (UI / APP MODERNA)
+   ================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+}
+
+/* =====================================
+   2. VARIABLES Y TEMA
+   ================================== */
+
 :root {
+  /* Colores */
   --blue: #4285F4;
   --red: #EA4335;
   --yellow: #FBBC04;
   --green: #34A853;
+
   --bg: #ffffff;
   --surface: #ffffff;
+
   --text: #1f1f1f;
   --text-secondary: #444746;
+
   --border: #dee2e6;
+
+  /* Elevación (light) */
+  --shadow-1: 0 2px 8px rgba(0,0,0,.15);
+  --shadow-2: 0 4px 12px rgba(0,0,0,.2);
+  --shadow-3: 0 6px 16px rgba(0,0,0,.3);
+
+  /* Hover */
+  --hover-bg: rgba(0,0,0,.06);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,119 +67,45 @@
     --red: #f28b82;
     --yellow: #fdd663;
     --green: #81c995;
+
     --bg: #131314;
     --surface: #1e1f20;
+
     --text: #e3e3e3;
     --text-secondary: #c4c7c5;
+
     --border: #444746;
+
+    /* Elevación (dark) */
+    --shadow-1: 0 1px 2px rgba(0,0,0,.6),
+                0 0 0 1px rgba(255,255,255,.04);
+
+    --shadow-2: 0 4px 12px rgba(0,0,0,.7),
+                0 0 0 1px rgba(255,255,255,.06);
+
+    --shadow-3: 0 6px 20px rgba(0,0,0,.8),
+                0 0 0 1px rgba(255,255,255,.08);
+
+    /* Hover claro */
+    --hover-bg: rgba(255,255,255,.08);
   }
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* =====================================
+   3. BASE TIPOGRÁFICA
+   ================================== */
 
 body {
-  min-height: 100vh;
   background: var(--bg);
   color: var(--text);
   font-family: 'Google Sans Flex', sans-serif;
 }
 
-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: 64px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-}
-
-.header-content {
-  max-width: 1200px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.icon {
-  padding: 8px;
-  font-size: 18px;
-  border-radius: 50%;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  color: var(--text-secondary);
-}
-
-.icon:hover { background: rgba(128,128,128,.12); }
-
 h1 {
   font-size: 22px;
-  font-weight: bold;
+  font-weight: 700;
   color: var(--blue);
 }
-
-main {
-  max-width: 800px;
-  margin: 32px auto;
-  padding: 0 16px;
-  display: grid;
-  gap: 20px;
-}
-
-@media (min-width: 640px) {
-  main { grid-template-columns: repeat(2, 1fr); }
-  .full { grid-column: 1 / -1; }
-}
-
-.card {
-  background: var(--surface);
-  border-radius: 12px;
-  border: 2px solid;
-  border-top-width: 8px;
-  padding: 24px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 2px 8px rgba(0,0,0,.15);
-  transition: transform .2s;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-}
-
-.card.blue { border-color: var(--blue); }
-.card.red { border-color: var(--red); }
-.card.yellow { border-color: var(--yellow); }
-.card.green { border-color: var(--green); }
-.card.multi { 
-  border: 2px solid transparent;
-  border-top-width: 8px;
-  background: 
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    linear-gradient(90deg, var(--blue), var(--red), var(--yellow), var(--green)) border-box;
-}
-
-.card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.blue .card-icon { background: rgba(66, 133, 244, 0.1); color: var(--blue); }
-.red .card-icon { background: rgba(234, 67, 53, 0.1); color: var(--red); }
-.yellow .card-icon { background: rgba(251, 188, 4, 0.1); color: var(--yellow); }
-.green .card-icon { background: rgba(52, 168, 83, 0.1); color: var(--green); }
-.multi .card-icon { background: rgba(66, 133, 244, 0.1); color: var(--blue); }
 
 h2 {
   font-size: 18px;
@@ -149,38 +115,180 @@ h2 {
 
 p {
   font-size: 14px;
-  color: var(--text-secondary);
   line-height: 1.5;
+  color: var(--text-secondary);
 }
 
-.fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  border: 2px solid transparent;
-  background: 
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    linear-gradient(90deg, var(--blue), var(--red), var(--yellow), var(--green)) border-box;
-  color: var(--blue);
-  box-shadow: 0 4px 12px rgba(0,0,0,.3);
+/* =====================================
+   4. LAYOUT ESTRUCTURAL
+   ================================== */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  height: 64px;
+  padding: 0 8px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-content {
+  width: 100%;
+  max-width: 1200px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+main {
+  max-width: 800px;
+  margin: 32px auto;
+  padding: 0 16px;
+
+  display: grid;
+  gap: 20px;
+}
+
+/* =====================================
+   5. COMPONENTES BASE
+   ================================== */
+
+.icon {
+  padding: 8px;
+  font-size: 18px;
+  border-radius: 50%;
+
   cursor: pointer;
+  color: var(--text-secondary);
+
   -webkit-tap-highlight-color: transparent;
-  transition: transform .2s;
+}
+
+.icon:hover {
+  background: var(--hover-bg);
+}
+
+.card {
+  background: var(--surface);
+  padding: 24px;
+
+  border-radius: 12px;
+  border: 2px solid;
+  border-top-width: 8px;
+
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: transform .2s, box-shadow .2s;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+}
+
+/* =====================================
+   6. VARIANTES DE COMPONENTES
+   ================================== */
+
+.card.blue   { border-color: var(--blue); }
+.card.red    { border-color: var(--red); }
+.card.yellow { border-color: var(--yellow); }
+.card.green  { border-color: var(--green); }
+
+.card.multi {
+  border: 2px solid transparent;
+  border-top-width: 8px;
+
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(
+      90deg,
+      var(--blue),
+      var(--red),
+      var(--yellow),
+      var(--green)
+    ) border-box;
+}
+
+.blue   .card-icon { background: rgba(66,133,244,.1); color: var(--blue); }
+.red    .card-icon { background: rgba(234,67,53,.1);  color: var(--red); }
+.yellow .card-icon { background: rgba(251,188,4,.1);  color: var(--yellow); }
+.green  .card-icon { background: rgba(52,168,83,.1);  color: var(--green); }
+.multi  .card-icon { background: rgba(66,133,244,.1); color: var(--blue); }
+
+/* =====================================
+   7. COMPONENTES ESPECIALES
+   ================================== */
+
+.fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+  border: 2px solid transparent;
+
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(
+      90deg,
+      var(--blue),
+      var(--red),
+      var(--yellow),
+      var(--green)
+    ) border-box;
+
+  color: var(--blue);
+  cursor: pointer;
+
+  box-shadow: var(--shadow-2);
+  transition: transform .2s, box-shadow .2s;
+
+  -webkit-tap-highlight-color: transparent;
 }
 
 .fab:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0,0,0,.4);
+  box-shadow: var(--shadow-3);
 }
+
+/* =====================================
+   8. UTILIDADES VISUALES
+   ================================== */
 
 .google-gradient {
   display: inline-block;
+
   background: linear-gradient(
     90deg,
     var(--blue),
@@ -188,9 +296,24 @@ p {
     var(--yellow),
     var(--green)
   );
+
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
+}
+
+/* =====================================
+   9. MEDIA QUERIES (LAYOUT)
+   ================================== */
+
+@media (min-width: 640px) {
+  main {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .full {
+    grid-column: 1 / -1;
+  }
 }
 </style>
 </head>
