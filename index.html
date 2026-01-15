@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Calculadora Nutricional</title>
+<meta name="description" content="Descripción de tu proyecto aquí">
+
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131314" media="(prefers-color-scheme: dark)">
 
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -38,25 +44,30 @@ body {
    ================================== */
 
 :root {
-  /* Colores claros */
+  /* Colores base */
   --blue: #4285F4;
   --red: #EA4335;
   --yellow: #FBBC04;
   --green: #34A853;
 
   --bg: #ffffff;
-  --surface: #ffffff;
+  --surface: #faf9f6;
 
   --text: #1f1f1f;
   --text-secondary: #444746;
       
-  --hover: rgba(0, 0, 0, .06);
-  --shadow: 0 8px 16px rgba(0,0,0,.22);
+
+  /* Elevación – light mode */
+  --elevation-3:
+    0 8px 16px rgba(0,0,0,.22);
+    
+  /* Hover */
+  --hover-bg: rgba(0, 0, 0, .06);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Colores oscuros */
+    /* Colores dark */
     --blue: #8ab4f8;
     --red: #f28b82;
     --yellow: #fdd663;
@@ -68,8 +79,12 @@ body {
     --text: #e3e3e3;
     --text-secondary: #c4c7c5;
 
-    --hover: rgba(255, 255, 255, .20);
-    --shadow: 0 4px 12px rgba(255,255,255,.20);
+    /* Elevación – dark mode (sombras blancas) */
+    --elevation-3:
+      0 4px 12px rgba(255,255,255,.20);
+      
+    /* Hover */
+     --hover-bg: rgba(255, 255, 255, .08);
   }
 }
 
@@ -90,7 +105,7 @@ h1 {
 }
 
 h2 {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   margin-bottom: 8px;
 }
@@ -119,7 +134,7 @@ header {
   justify-content: center;
 
   background: var(--bg);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-3);
 }
 
 .header-content {
@@ -176,7 +191,7 @@ main {
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow);
+  box-shadow: var(--elevation-3);
 }
 
 .card-icon {
@@ -260,7 +275,7 @@ main {
 
 .fab:hover {
   transform: scale(1.05);
-  box-shadow: var(--hover);
+  box-shadow: var(--elevation-3);
 }
 
 /* =====================================
@@ -296,7 +311,50 @@ main {
     grid-column: 1 / -1;
   }
 }
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.summary-item strong {
+  display: block;
+  
+  font-size: 18px;
+  
+}
+.summary-item span {
+  font-size: 12px;
+  
+  
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.main-progress {
+  background: #e0e0e0;
+  height: 12px;
+  border-radius: 6px;
+  margin: 10px 0 24px 0;
+  
+  overflow: hidden;
+  display: flex;
+}
+
+.kcal-number {
+  font-size: 28px;
+  font-weight: 900; /* Black weight */
+  letter-spacing: -1px;
+  line-height: 1;
+  color: var(--text-main);
+}
+
+.prog-bar { height: 100%; }
 </style>
+
 </head>
 
 <body>
@@ -314,30 +372,169 @@ main {
     <span class="material-symbols-outlined card-icon">bakery_dining</span>
     <h2>Desayuno</h2>
     <p>Avena con plátano y nueces. Ideal para comenzar el día con energía constante.</p>
+    
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+  <span class="kcal-number">1,590</span>
+  <span style="font-size: 16px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+</div>
+
+<div class="main-progress">
+  <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-item">
+    <strong>110g</strong>
+    <span>Proteína</span>
+  </div>
+  <div class="summary-item">
+    <strong>180g</strong>
+    <span>Carbos</span>
+  </div>
+  <div class="summary-item">
+    <strong>55g</strong>
+    <span>Grasas</span>
+  </div>
+</div>
+    
   </div>
   
   <div class="card red">
     <span class="material-symbols-outlined card-icon">restaurant</span>
     <h2>Almuerzo</h2>
     <p>Pollo a la plancha con quinoa y vegetales. Alta densidad proteica.</p>
+    
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+  <span class="kcal-number">1,590</span>
+  <span style="font-size: 16px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+</div>
+
+<div class="main-progress">
+  <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-item">
+    <strong>110g</strong>
+    <span>Proteína</span>
+  </div>
+  <div class="summary-item">
+    <strong>180g</strong>
+    <span>Carbos</span>
+  </div>
+  <div class="summary-item">
+    <strong>55g</strong>
+    <span>Grasas</span>
+  </div>
+</div>
+    
   </div>
   
   <div class="card yellow">
     <span class="material-symbols-outlined card-icon">coffee</span>
     <h2>Merienda</h2>
     <p>Yogur griego con frutos rojos. Snack ligero para mantener el metabolismo activo.</p>
+    
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+  <span class="kcal-number">1,590</span>
+  <span style="font-size: 16px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+</div>
+
+<div class="main-progress">
+  <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-item">
+    <strong>110g</strong>
+    <span>Proteína</span>
+  </div>
+  <div class="summary-item">
+    <strong>180g</strong>
+    <span>Carbos</span>
+  </div>
+  <div class="summary-item">
+    <strong>55g</strong>
+    <span>Grasas</span>
+  </div>
+</div>
+    
   </div>
   
   <div class="card green">
     <span class="material-symbols-outlined card-icon">dark_mode</span>
     <h2>Cena</h2>
     <p>Salmón al horno con espárragos. Digestión ligera para un mejor descanso.</p>
+    
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+  <span class="kcal-number">1,590</span>
+  <span style="font-size: 16px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+</div>
+
+<div class="main-progress">
+  <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-item">
+    <strong>110g</strong>
+    <span>Proteína</span>
+  </div>
+  <div class="summary-item">
+    <strong>180g</strong>
+    <span>Carbos</span>
+  </div>
+  <div class="summary-item">
+    <strong>55g</strong>
+    <span>Grasas</span>
+  </div>
+</div>
   </div>
   
   <div class="card multi full">
     <span class="material-symbols-outlined card-icon">analytics</span>
-    <h2>Resumen Diario Total</h2>
+    <h2>Resumen Total</h2>
     <p>Has alcanzado el 85% de tus objetivos de hoy. El balance de macronutrientes es óptimo.</p>
+    
+     <div style="display: flex; align-items: baseline; gap: 8px;">
+   <span class="kcal-number">1,590</span>
+   <span style="font-size: 16px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+ </div>
+ 
+ <div class="main-progress">
+   <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+   <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+   <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+   <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+ </div>
+ 
+ <div class="summary-grid">
+   <div class="summary-item">
+     <strong>110g</strong>
+     <span>Proteína</span>
+   </div>
+   <div class="summary-item">
+     <strong>180g</strong>
+     <span>Carbos</span>
+   </div>
+   <div class="summary-item">
+     <strong>55g</strong>
+     <span>Grasas</span>
+   </div>
+ </div>
+    
   </div>
 </main>
 
