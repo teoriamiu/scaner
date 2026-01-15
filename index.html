@@ -314,7 +314,41 @@ main {
     grid-column: 1 / -1;
   }
 }
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.summary-item strong {
+  display: block;
+  
+  font-size: 20px;
+  color: var(--text-main);
+}
+.summary-item span {
+  font-size: 12px;
+  
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.main-progress {
+  background: #e0e0e0;
+  height: 12px;
+  border-radius: 6px;
+  margin: 10px 0 24px 0;
+  
+  overflow: hidden;
+  display: flex;
+}
+.prog-bar { height: 100%; }
 </style>
+
 </head>
 
 <body>
@@ -332,30 +366,169 @@ main {
     <span class="material-symbols-outlined card-icon">bakery_dining</span>
     <h2>Desayuno</h2>
     <p>Avena con plátano y nueces. Ideal para comenzar el día con energía constante.</p>
+    
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+  <span class="kcal-number">1,590</span>
+  <span style="font-size: 20px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+</div>
+
+<div class="main-progress">
+  <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-item">
+    <strong>110g</strong>
+    <span>Proteína</span>
+  </div>
+  <div class="summary-item">
+    <strong>180g</strong>
+    <span>Carbos</span>
+  </div>
+  <div class="summary-item">
+    <strong>55g</strong>
+    <span>Grasas</span>
+  </div>
+</div>
+    
   </div>
   
   <div class="card red">
     <span class="material-symbols-outlined card-icon">restaurant</span>
     <h2>Almuerzo</h2>
     <p>Pollo a la plancha con quinoa y vegetales. Alta densidad proteica.</p>
+    
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+  <span class="kcal-number">1,590</span>
+  <span style="font-size: 20px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+</div>
+
+<div class="main-progress">
+  <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-item">
+    <strong>110g</strong>
+    <span>Proteína</span>
+  </div>
+  <div class="summary-item">
+    <strong>180g</strong>
+    <span>Carbos</span>
+  </div>
+  <div class="summary-item">
+    <strong>55g</strong>
+    <span>Grasas</span>
+  </div>
+</div>
+    
   </div>
   
   <div class="card yellow">
     <span class="material-symbols-outlined card-icon">coffee</span>
     <h2>Merienda</h2>
     <p>Yogur griego con frutos rojos. Snack ligero para mantener el metabolismo activo.</p>
+    
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+  <span class="kcal-number">1,590</span>
+  <span style="font-size: 20px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+</div>
+
+<div class="main-progress">
+  <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-item">
+    <strong>110g</strong>
+    <span>Proteína</span>
+  </div>
+  <div class="summary-item">
+    <strong>180g</strong>
+    <span>Carbos</span>
+  </div>
+  <div class="summary-item">
+    <strong>55g</strong>
+    <span>Grasas</span>
+  </div>
+</div>
+    
   </div>
   
   <div class="card green">
     <span class="material-symbols-outlined card-icon">dark_mode</span>
     <h2>Cena</h2>
     <p>Salmón al horno con espárragos. Digestión ligera para un mejor descanso.</p>
+    
+    <div style="display: flex; align-items: baseline; gap: 8px;">
+  <span class="kcal-number">1,590</span>
+  <span style="font-size: 20px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+</div>
+
+<div class="main-progress">
+  <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+  <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-item">
+    <strong>110g</strong>
+    <span>Proteína</span>
+  </div>
+  <div class="summary-item">
+    <strong>180g</strong>
+    <span>Carbos</span>
+  </div>
+  <div class="summary-item">
+    <strong>55g</strong>
+    <span>Grasas</span>
+  </div>
+</div>
   </div>
   
   <div class="card multi full">
     <span class="material-symbols-outlined card-icon">analytics</span>
     <h2>Resumen Diario Total</h2>
     <p>Has alcanzado el 85% de tus objetivos de hoy. El balance de macronutrientes es óptimo.</p>
+    
+     <div style="display: flex; align-items: baseline; gap: 8px;">
+   <span class="kcal-number">1,590</span>
+   <span style="font-size: 20px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
+ </div>
+ 
+ <div class="main-progress">
+   <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
+   <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
+   <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
+   <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+ </div>
+ 
+ <div class="summary-grid">
+   <div class="summary-item">
+     <strong>110g</strong>
+     <span>Proteína</span>
+   </div>
+   <div class="summary-item">
+     <strong>180g</strong>
+     <span>Carbos</span>
+   </div>
+   <div class="summary-item">
+     <strong>55g</strong>
+     <span>Grasas</span>
+   </div>
+ </div>
+    
   </div>
 </main>
 
