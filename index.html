@@ -38,7 +38,7 @@ body {
    ================================== */
 
 :root {
-  /* Colores */
+  /* Colores base */
   --blue: #4285F4;
   --red: #EA4335;
   --yellow: #FBBC04;
@@ -52,17 +52,23 @@ body {
 
   --border: #dee2e6;
 
-  /* Elevación (light) */
-  --shadow-1: 0 2px 8px rgba(0,0,0,.15);
-  --shadow-2: 0 4px 12px rgba(0,0,0,.2);
-  --shadow-3: 0 6px 16px rgba(0,0,0,.3);
+  /* Elevación – light mode */
+  --elevation-1:
+    0 1px 3px rgba(0,0,0,.12),
+    0 1px 2px rgba(0,0,0,.18);
 
-  /* Hover */
-  --hover-bg: rgba(0,0,0,.06);
+  --elevation-2:
+    0 4px 8px rgba(0,0,0,.18),
+    0 2px 4px rgba(0,0,0,.22);
+
+  --elevation-3:
+    0 8px 16px rgba(0,0,0,.22),
+    0 4px 8px rgba(0,0,0,.26);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Colores dark */
     --blue: #8ab4f8;
     --red: #f28b82;
     --yellow: #fdd663;
@@ -76,18 +82,18 @@ body {
 
     --border: #444746;
 
-    /* Elevación (dark → halos blancos) */
-    --shadow-1: 0 0 0 1px rgba(255,255,255,.06),
-                0 1px 3px rgba(255,255,255,.08);
+    /* Elevación – dark mode (sombras blancas) */
+    --elevation-1:
+      0 0 0 1px rgba(255,255,255,.60),
+      0 1px 3px rgba(255,255,255,.80);
 
-    --shadow-2: 0 0 0 1px rgba(255,255,255,.10),
-                0 2px 6px rgba(255,255,255,.12);
+    --elevation-2:
+      0 0 0 1px rgba(255,255,255,.10),
+      0 2px 6px rgba(255,255,255,.12);
 
-    --shadow-3: 0 0 0 1px rgba(255,255,255,.14),
-                0 4px 12px rgba(255,255,255,.16);
-
-    /* Hover claro */
-    --hover-bg: rgba(255,255,255,.08);
+    --elevation-3:
+      0 0 0 1px rgba(255,255,255,.14),
+      0 4px 12px rgba(255,255,255,.16);
   }
 }
 
@@ -174,7 +180,7 @@ main {
 }
 
 .icon:hover {
-  background: var(--hover-bg);
+  background: rgba(128, 128, 128, 0.12);
 }
 
 .card {
@@ -186,7 +192,8 @@ main {
   border-top-width: 8px;
 
   cursor: pointer;
-  box-shadow: var(--shadow-1);
+
+  box-shadow: var(--elevation-1);
   transition: transform .2s, box-shadow .2s;
 
   -webkit-tap-highlight-color: transparent;
@@ -194,7 +201,7 @@ main {
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--elevation-2);
 }
 
 .card-icon {
@@ -271,7 +278,7 @@ main {
   color: var(--blue);
   cursor: pointer;
 
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--elevation-2);
   transition: transform .2s, box-shadow .2s;
 
   -webkit-tap-highlight-color: transparent;
@@ -279,7 +286,7 @@ main {
 
 .fab:hover {
   transform: scale(1.05);
-  box-shadow: var(--shadow-3);
+  box-shadow: var(--elevation-3);
 }
 
 /* =====================================
