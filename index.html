@@ -1,489 +1,169 @@
+Sí, puedes lograr un resultado muy similar con mucho menos código usando un framework CSS moderno. Aquí te muestro una versión con **Tailwind CSS** que reduce el código significativamente:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calculadora Nutricional</title>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-
-<style>
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  min-height: 100vh;
-  text-rendering: optimizeLegibility;
-}
-
-:root {
-  --blue: #4285F4;
-  --red: #EA4335;
-  --yellow: #FBBC04;
-  --green: #34A853;
-
-  --bg: #ffffff;
-  --surface: #ffffff;
-
-  --text: #1f1f1f;
-  --text-secondary: #444746;
-
-  --elevation-3: 0 8px 16px rgba(0,0,0,.22);
-  --hover-bg: rgba(0, 0, 0, .06);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --blue: #8ab4f8;
-    --red: #f28b82;
-    --yellow: #fdd663;
-    --green: #81c995;
-
-    --bg: #131314;
-    --surface: #1e1f20;
-
-    --text: #e3e3e3;
-    --text-secondary: #c4c7c5;
-
-    --elevation-3: 0 4px 12px rgba(255,255,255,.20);
-    --hover-bg: rgba(255, 255, 255, .08);
+<script>
+tailwind.config = {
+  darkMode: 'media',
+  theme: {
+    extend: {
+      colors: {
+        'google-blue': '#4285F4',
+        'google-red': '#EA4335',
+        'google-yellow': '#FBBC04',
+        'google-green': '#34A853',
+      }
+    }
   }
 }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Google Sans Flex', sans-serif;
-}
-
-h1 {
-  font-size: 20px;
-  font-weight: 700;
-  margin-right: auto;
-  color: var(--blue);
-}
-
-h2 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-p {
-  font-size: 14px;
-  line-height: 1.5;
-  margin-bottom: 20px;
-  color: var(--text-secondary);
-}
-
-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: 64px;
-  padding: 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  box-shadow: var(--elevation-3);
-}
-
-.header-content {
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-main {
-  margin: 32px auto;
-  padding: 0 16px;
-  display: grid;
-  gap: 20px;
-}
-
-.icon {
-  padding: 10px;
-  font-size: 18px;
-  border-radius: 50%;
-  cursor: pointer;
-  color: var(--text-secondary);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.icon:hover {
-  background: var(--hover-bg);
-}
-
-.card {
-  background: var(--surface);
-  padding: 24px;
-  border-radius: 12px;
-  border: 2px solid;
-  border-top-width: 8px;
-  cursor: pointer;
-  transition: transform .2s, box-shadow .2s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--elevation-3);
-}
-
-.card-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-align-items: center;
-justify-content: center;
-  border-radius: 12px;
-}
-
-.icon-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.percentage {
-  font-size: 14px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 10px;
-  color: var(--green);
-  background: rgba(128, 128, 128, .1);
-  
-}
-
-.card.blue   { border-color: var(--blue); }
-.card.red    { border-color: var(--red); }
-.card.yellow { border-color: var(--yellow); }
-.card.green  { border-color: var(--green); }
-
-.card.multi {
-  border: 2px solid transparent;
-  border-top-width: 8px;
-  background:
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    linear-gradient(
-      90deg,
-      var(--blue),
-      var(--red),
-      var(--yellow),
-      var(--green)
-    ) border-box;
-}
-
-.blue   .card-icon { background: rgba(66,133,244,.1); color: var(--blue); }
-.red    .card-icon { background: rgba(234,67,53,.1);  color: var(--red); }
-.yellow .card-icon { background: rgba(251,188,4,.1);  color: var(--yellow); }
-.green  .card-icon { background: rgba(52,168,83,.1);  color: var(--green); }
-.multi  .card-icon { 
-  background: rgba(66,133,244,.1); color: var(--blue); }
-
-.fab {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  border: 2px solid transparent;
-  background:
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    linear-gradient(
-      90deg,
-      var(--blue),
-      var(--red),
-      var(--yellow),
-      var(--green)
-    ) border-box;
-  color: var(--blue);
-  cursor: pointer;
-  transition: transform .2s, box-shadow .2s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.fab:hover {
-  transform: scale(1.05);
-  box-shadow: var(--elevation-3);
-}
-
-.google-gradient {
-  display: inline-block;
-  background: linear-gradient(
-    90deg,
-    var(--blue),
-    var(--red),
-    var(--yellow),
-    var(--green)
-  );
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-@media (min-width: 640px) {
-  main {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .full {
-    grid-column: 1 / -1;
-  }
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-top: 20px;
-  text-align: center;
-}
-
-.summary-item strong {
-  display: block;
-  font-size: 16px;
-}
-
-.summary-item span {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.main-progress {
-  background: #e0e0e0;
-  height: 12px;
-  border-radius: 6px;
-  margin: 10px 0 24px 0;
-  overflow: hidden;
-  display: flex;
-}
-
-.kcal-number {
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: -1px;
-  line-height: 1;
-  color: var(--text-main);
-}
-
-.prog-bar { height: 100%; }
-</style>
+</script>
 </head>
 
-<body>
+<body class="bg-white dark:bg-[#131314] text-gray-900 dark:text-gray-200 min-h-screen">
 
-<header>
-  <div class="header-content">
-    <span class="material-symbols-outlined icon">menu</span>
-    <h1 class="google-gradient">Agustín Díaz</h1>
-    <span class="material-symbols-outlined icon tune">tune</span>
+<header class="sticky top-0 z-50 bg-white dark:bg-[#131314] h-16 flex items-center justify-center px-2">
+  <div class="w-full max-w-6xl flex items-center gap-2">
+    <span class="material-symbols-outlined p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer">menu</span>
+    <h1 class="text-xl font-bold mr-auto bg-gradient-to-r from-google-blue via-google-red via-google-yellow to-google-green bg-clip-text text-transparent">Agustín Díaz</h1>
+    <span class="material-symbols-outlined p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer">tune</span>
   </div>
 </header>
 
-<main>
-  <div class="card blue">
-    <div class="icon-row">
-      <span class="material-symbols-outlined card-icon">bakery_dining</span>
-      <span class="percentage">25.0%</span>
-    </div>
-    <h2>Desayuno</h2>
-    <p>Avena con plátano y nueces. Ideal para comenzar el día con energía constante.</p>
-    
-    <div style="display: flex; align-items: baseline; gap: 8px;">
-      <span class="kcal-number">500</span>
-      <span style="font-size: 14px; color: var(--text-muted); font-weight:500;">/ 500 kcal</span>
-    </div>
-
-    <div class="main-progress">
-      <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
-    </div>
-
-    <div class="summary-grid">
-      <div class="summary-item">
-        <strong>37.5g</strong>
-        <span>Proteína</span>
-      </div>
-      <div class="summary-item">
-        <strong>62.5g</strong>
-        <span>Carbos</span>
-      </div>
-      <div class="summary-item">
-        <strong>11g</strong>
-        <span>Grasas</span>
-      </div>
-    </div>
-  </div>
+<main class="max-w-6xl mx-auto p-4 grid sm:grid-cols-2 gap-5 my-8">
   
-  <div class="card red">
-    <div class="icon-row">
-      <span class="material-symbols-outlined card-icon">restaurant</span>
-      <span class="percentage">25.0%</span>
+  <!-- Desayuno -->
+  <div class="bg-white dark:bg-[#1e1f20] p-6 rounded-xl border-t-8 border-google-blue hover:shadow-2xl hover:-translate-y-0.5 transition cursor-pointer">
+    <div class="flex items-center justify-between mb-3">
+      <span class="material-symbols-outlined w-10 h-10 flex items-center justify-center rounded-xl bg-google-blue/10 text-google-blue">bakery_dining</span>
+      <span class="text-sm font-bold px-3 py-1.5 rounded-lg text-google-green bg-gray-500/10">25.0%</span>
     </div>
-    <h2>Almuerzo</h2>
-    <p>Pollo a la plancha con quinoa y vegetales. Alta densidad proteica.</p>
-    
-    <div style="display: flex; align-items: baseline; gap: 8px;">
-      <span class="kcal-number">500</span>
-      <span style="font-size: 14px; color: var(--text-muted); font-weight:500;">/ 500 kcal</span>
+    <h2 class="text-lg font-bold mb-2">Desayuno</h2>
+    <div class="flex items-baseline gap-2">
+      <span class="text-lg font-black">500</span>
+      <span class="text-sm text-gray-500">/ 500 kcal</span>
     </div>
+    <div class="h-3 rounded-full overflow-hidden flex my-6">
+      <div class="w-1/4 bg-google-blue"></div>
+      <div class="w-1/4 bg-google-red"></div>
+      <div class="w-1/4 bg-google-yellow"></div>
+      <div class="w-1/4 bg-google-green"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div><strong class="block">37.5g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Proteína</span></div>
+      <div><strong class="block">62.5g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Carbos</span></div>
+      <div><strong class="block">11g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Grasas</span></div>
+    </div>
+  </div>
 
-    <div class="main-progress">
-      <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
+  <!-- Almuerzo -->
+  <div class="bg-white dark:bg-[#1e1f20] p-6 rounded-xl border-t-8 border-google-red hover:shadow-2xl hover:-translate-y-0.5 transition cursor-pointer">
+    <div class="flex items-center justify-between mb-3">
+      <span class="material-symbols-outlined w-10 h-10 flex items-center justify-center rounded-xl bg-google-red/10 text-google-red">restaurant</span>
+      <span class="text-sm font-bold px-3 py-1.5 rounded-lg text-google-green bg-gray-500/10">25.0%</span>
     </div>
+    <h2 class="text-lg font-bold mb-2">Almuerzo</h2>
+    <div class="flex items-baseline gap-2">
+      <span class="text-lg font-black">500</span>
+      <span class="text-sm text-gray-500">/ 500 kcal</span>
+    </div>
+    <div class="h-3 rounded-full overflow-hidden flex my-6">
+      <div class="w-1/4 bg-google-blue"></div>
+      <div class="w-1/4 bg-google-red"></div>
+      <div class="w-1/4 bg-google-yellow"></div>
+      <div class="w-1/4 bg-google-green"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div><strong class="block">50g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Proteína</span></div>
+      <div><strong class="block">50g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Carbos</span></div>
+      <div><strong class="block">11g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Grasas</span></div>
+    </div>
+  </div>
 
-    <div class="summary-grid">
-      <div class="summary-item">
-        <strong>50g</strong>
-        <span>Proteína</span>
+  <!-- Merienda -->
+  <div class="bg-white dark:bg-[#1e1f20] p-6 rounded-xl border-t-8 border-google-yellow hover:shadow-2xl hover:-translate-y-0.5 transition cursor-pointer">
+    <div class="flex items-center justify-between mb-3">
+      <span class="material-symbols-outlined w-10 h-10 flex items-center justify-center rounded-xl bg-google-yellow/10 text-google-yellow">coffee</span>
+      <span class="text-sm font-bold px-3 py-1.5 rounded-lg text-google-green bg-gray-500/10">25.0%</span>
+    </div>
+    <h2 class="text-lg font-bold mb-2">Merienda</h2>
+    <div class="flex items-baseline gap-2">
+      <span class="text-lg font-black">500</span>
+      <span class="text-sm text-gray-500">/ 500 kcal</span>
+    </div>
+    <div class="h-3 rounded-full overflow-hidden flex my-6">
+      <div class="w-1/4 bg-google-blue"></div>
+      <div class="w-1/4 bg-google-red"></div>
+      <div class="w-1/4 bg-google-yellow"></div>
+      <div class="w-1/4 bg-google-green"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div><strong class="block">31g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Proteína</span></div>
+      <div><strong class="block">75g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Carbos</span></div>
+      <div><strong class="block">8.3g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Grasas</span></div>
+    </div>
+  </div>
+
+  <!-- Cena -->
+  <div class="bg-white dark:bg-[#1e1f20] p-6 rounded-xl border-t-8 border-google-green hover:shadow-2xl hover:-translate-y-0.5 transition cursor-pointer">
+    <div class="flex items-center justify-between mb-3">
+      <span class="material-symbols-outlined w-10 h-10 flex items-center justify-center rounded-xl bg-google-green/10 text-google-green">dark_mode</span>
+      <span class="text-sm font-bold px-3 py-1.5 rounded-lg text-google-green bg-gray-500/10">25.0%</span>
+    </div>
+    <h2 class="text-lg font-bold mb-2">Cena</h2>
+    <div class="flex items-baseline gap-2">
+      <span class="text-lg font-black">500</span>
+      <span class="text-sm text-gray-500">/ 500 kcal</span>
+    </div>
+    <div class="h-3 rounded-full overflow-hidden flex my-6">
+      <div class="w-1/4 bg-google-blue"></div>
+      <div class="w-1/4 bg-google-red"></div>
+      <div class="w-1/4 bg-google-yellow"></div>
+      <div class="w-1/4 bg-google-green"></div>
+    </div>
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div><strong class="block">43.8g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Proteína</span></div>
+      <div><strong class="block">43.8g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Carbos</span></div>
+      <div><strong class="block">16.7g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Grasas</span></div>
+    </div>
+  </div>
+
+  <!-- Resumen Total -->
+  <div class="sm:col-span-2 bg-white dark:bg-[#1e1f20] p-6 rounded-xl border-2 border-transparent bg-gradient-to-r from-google-blue via-google-red via-google-yellow to-google-green bg-clip-padding hover:shadow-2xl hover:-translate-y-0.5 transition cursor-pointer relative">
+    <div style="background: inherit; position: absolute; inset: 2px; border-radius: 0.75rem;"></div>
+    <div class="relative z-10">
+      <div class="flex items-center justify-between mb-3">
+        <span class="material-symbols-outlined w-10 h-10 flex items-center justify-center rounded-xl bg-google-blue/10 text-google-blue">analytics</span>
+        <span class="text-sm font-bold px-3 py-1.5 rounded-lg text-google-green bg-gray-500/10">100.0%</span>
       </div>
-      <div class="summary-item">
-        <strong>50g</strong>
-        <span>Carbos</span>
+      <h2 class="text-lg font-bold mb-2">Resumen Total</h2>
+      <div class="flex items-baseline gap-2">
+        <span class="text-lg font-black">2,000</span>
+        <span class="text-sm text-gray-500">/ 2,000 kcal</span>
       </div>
-      <div class="summary-item">
-        <strong>11g</strong>
-        <span>Grasas</span>
+      <div class="h-3 rounded-full overflow-hidden flex my-6">
+        <div class="w-1/4 bg-google-blue"></div>
+        <div class="w-1/4 bg-google-red"></div>
+        <div class="w-1/4 bg-google-yellow"></div>
+        <div class="w-1/4 bg-google-green"></div>
+      </div>
+      <div class="grid grid-cols-3 gap-4 text-center">
+        <div><strong class="block">162.3g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Proteína</span></div>
+        <div><strong class="block">231.3g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Carbos</span></div>
+        <div><strong class="block">47g</strong><span class="text-xs uppercase tracking-wider text-gray-500">Grasas</span></div>
       </div>
     </div>
   </div>
-  
-  <div class="card yellow">
-    <div class="icon-row">
-      <span class="material-symbols-outlined card-icon">coffee</span>
-      <span class="percentage">25.0%</span>
-    </div>
-    <h2>Merienda</h2>
-    <p>Yogur griego con frutos rojos. Snack ligero para mantener el metabolismo activo.</p>
-    
-    <div style="display: flex; align-items: baseline; gap: 8px;">
-      <span class="kcal-number">500</span>
-      <span style="font-size: 14px; color: var(--text-muted); font-weight:500;">/ 500 kcal</span>
-    </div>
 
-    <div class="main-progress">
-      <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
-    </div>
-
-    <div class="summary-grid">
-      <div class="summary-item">
-        <strong>31g</strong>
-        <span>Proteína</span>
-      </div>
-      <div class="summary-item">
-        <strong>75g</strong>
-        <span>Carbos</span>
-      </div>
-      <div class="summary-item">
-        <strong>8.3g</strong>
-        <span>Grasas</span>
-      </div>
-    </div>
-  </div>
-  
-  <div class="card green">
-    <div class="icon-row">
-      <span class="material-symbols-outlined card-icon">dark_mode</span>
-      <span class="percentage">25.0%</span>
-    </div>
-    <h2>Cena</h2>
-    <p>Salmón al horno con espárragos. Digestión ligera para un mejor descanso.</p>
-    
-    <div style="display: flex; align-items: baseline; gap: 8px;">
-      <span class="kcal-number">500</span>
-      <span style="font-size: 14px; color: var(--text-muted); font-weight:500;">/ 500 kcal</span>
-    </div>
-
-    <div class="main-progress">
-      <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
-    </div>
-
-    <div class="summary-grid">
-      <div class="summary-item">
-        <strong>43.8g</strong>
-        <span>Proteína</span>
-      </div>
-      <div class="summary-item">
-        <strong>43.8g</strong>
-        <span>Carbos</span>
-      </div>
-      <div class="summary-item">
-        <strong>16.7g</strong>
-        <span>Grasas</span>
-      </div>
-    </div>
-  </div>
-  
-  <div class="card multi full">
-    <div class="icon-row">
-      <span class="material-symbols-outlined card-icon">analytics</span>
-      <span class="percentage">100.0%</span>
-    </div>
-    <h2>Resumen Total</h2>
-    <p>Has alcanzado el 85% de tus objetivos de hoy. El balance de macronutrientes es óptimo.</p>
-    
-    <div style="display: flex; align-items: baseline; gap: 8px;">
-      <span class="kcal-number">2,000</span>
-      <span style="font-size: 14px; color: var(--text-muted); font-weight:500;">/ 2,000 kcal</span>
-    </div>
- 
-    <div class="main-progress">
-      <div class="prog-bar" style="width: 25%; background: var(--blue);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--red);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--yellow);"></div>
-      <div class="prog-bar" style="width: 25%; background: var(--green);"></div>
-    </div>
- 
-    <div class="summary-grid">
-      <div class="summary-item">
-        <strong>162.3g</strong>
-        <span>Proteína</span>
-      </div>
-      <div class="summary-item">
-        <strong>231.3g</strong>
-        <span>Carbos</span>
-      </div>
-      <div class="summary-item">
-        <strong>47g</strong>
-        <span>Grasas</span>
-      </div>
-    </div>
-  </div>
 </main>
 
-<button class="fab">
+<button class="fixed right-6 bottom-6 w-14 h-14 flex items-center justify-center rounded-2xl bg-gradient-to-r from-google-blue via-google-red via-google-yellow to-google-green text-white hover:scale-105 hover:shadow-2xl transition cursor-pointer">
   <span class="material-symbols-outlined">add</span>
 </button>
 
